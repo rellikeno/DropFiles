@@ -58,5 +58,10 @@ namespace DropFiles
                 LBL_SelectedFolder.Text = @"C:\";
             }
         }
+
+        void CheckandCreateFolder(string FolderName)
+        {
+
+        }
     }
 }
