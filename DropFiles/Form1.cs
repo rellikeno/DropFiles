@@ -19,19 +19,26 @@ namespace DropFiles
 
         private void LBL_DropFiles_DragDrop(object sender, DragEventArgs e)
         {
+            TB_Log.Clear();
+            int i = 1;
             string[] fileList = (string[])e.Data.GetData(DataFormats.FileDrop, false);
-            foreach(string File in fileList)
+            int FileCount = fileList.Length;
+            foreach(string FileWithFullPath in fileList)
             {
-                string FileNamewithoutExtension = Path.GetFileNameWithoutExtension(File);
+                string FileNamewithoutExtension = Path.GetFileNameWithoutExtension(FileWithFullPath);
                 int FirstHyphen = FileNamewithoutExtension.IndexOf('-');
                 string Product = FileNamewithoutExtension.Remove(FirstHyphen, FileNamewithoutExtension.Length-FirstHyphen);
                 string PartNumber = 
                     FileNamewithoutExtension.Substring(FileNamewithoutExtension.LastIndexOf('-')+1,FileNamewithoutExtension.Length - FileNamewithoutExtension.IndexOf('.'));
                 string Revision = FileNamewithoutExtension.Substring(FileNamewithoutExtension.LastIndexOf('.') + 1);
-                //MessageBox.Show("File name : " + FileNamewithoutExtension + Environment.NewLine +
-                //                "Product : " + Product + Environment.NewLine +
-                //                "Part Number : " + PartNumber + Environment.NewLine +
-                //                "Revision : " + Revision);
+                CheckandCreateFolder(Product);
+                CheckandCreateFolder(Product + @"\" + PartNumber);
+                CheckandCreateFolder(Product + @"\" + PartNumber + @"\" + Revision);
+                string NewFileName = string.Concat(Path.GetFileNameWithoutExtension(FileWithFullPath), "_" , DateTime.Now.ToString("dd-MMM-yyyy_HHmmss"), Path.GetExtension(FileWithFullPath));
+                File.Copy(FileWithFullPath, LBL_SelectedFolder.Text.ToString() + @"\" + Product + @"\" + PartNumber + @"\" + Revision + @"\" + NewFileName);
+                TB_Log.ScrollToCaret();
+                TB_Log.AppendText("File #" + i + " of " + FileCount + " : " + NewFileName + " Copied!." + Environment.NewLine);
+                i++;
             }
         }
 
@@ -61,7 +68,11 @@ namespace DropFiles
 
         void CheckandCreateFolder(string FolderName)
         {
-
+            string InitialPath = LBL_SelectedFolder.Text.ToString();
+            if (!Directory.Exists(InitialPath + FolderName))
+            {
+                Directory.CreateDirectory(InitialPath + @"\" + FolderName);
+            }
         }
     }
 }
